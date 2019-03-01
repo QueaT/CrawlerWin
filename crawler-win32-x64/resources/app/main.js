@@ -16,17 +16,23 @@ app.setLoginItemSettings({
 if(!err && res.statusCode === 200) {
     const $ = cheerio.load(body);
     const select = $('.release-header a').text().replace(/[^0-9]/g,'').replace(/(?!^)(?=(?:\d{4})+(?:\.|$))/gm, ' ').substr(0,3);
-    let value = fs.readFileSync( __dirname+'/nowyPrebid.txt','utf8');
-    if(value < select && value !== undefined ){
+    let value = fs.readFileSync( __dirname+'/nowyPrebid.json','utf8');
+    value = JSON.parse(value);
+    if(value.currentValue < select && value !== undefined ){
         electronHandler('index2.html',true);
-        elm = select;
-        fs.writeFile(__dirname+ '/nowyPrebid.txt',elm,function(err){})
+        elm = {'currentValue':select};
+        fs.writeFile(__dirname+ '/nowyPrebid.json',JSON.stringify(elm),function(err){})
     }
     else{
       app.quit()
     }
    
 }
+
+})
+ipcMain.on('openWin',function(e,item) {
+ 
+  require("electron").shell.openExternal("http://prebid.org/download.html");
 
 })
 

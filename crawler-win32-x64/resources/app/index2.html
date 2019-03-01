@@ -25,10 +25,10 @@
        const closeBut = document.querySelector('.close').addEventListener('click',()=>{
         ipcRenderer.send('closeiT',closeBut);
        })
-        const butonRedr= document.querySelector('.redr').addEventListener('click',()=>{
-            window.location.href = 'http://prebid.org/download.html'
 
-        })
+       const openWin = document.querySelector('.redr').addEventListener('click',()=>{
+        ipcRenderer.send('openWin',openWin);
+       })
     
      var request = require('request');
      var cheerio  = require('cheerio');
