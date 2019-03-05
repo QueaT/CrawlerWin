@@ -3,6 +3,7 @@ var request = require('request');
 var cheerio  = require('cheerio');
 const { app, BrowserWindow, ipcMain } = require('electron')
 const fs = require('fs');
+const sendEmail = require('./mail');
 const ffmpeg = require('ffmpeg-static-electron');
 let elm = '';
 
@@ -12,24 +13,50 @@ app.setLoginItemSettings({
   path: ffmpeg,
   });
 
+  let kontArr = fs.readFileSync(__dirname + '/nowyKontakt.json','utf8');
+  kontArr = JSON.parse(kontArr);
+
+
  request('https://github.com/prebid/Prebid.js/releases',function(err,res,body){
 if(!err && res.statusCode === 200) {
     const $ = cheerio.load(body);
-    const select = $('.release-header a').text().replace(/[^0-9]/g,'').replace(/(?!^)(?=(?:\d{4})+(?:\.|$))/gm, ' ').substr(0,3);
+    const select = $('.release-header a').text().replace(/[^0-9]/g,'').replace(/(?!^)(?=(?:\d{4})+(?:\.|$))/gm, ' ').substr(0,2);
     let value = fs.readFileSync( __dirname+'/nowyPrebid.json','utf8');
     value = JSON.parse(value);
     if(value.currentValue < select && value !== undefined ){
         electronHandler('index2.html',true);
         elm = {'currentValue':select};
         fs.writeFile(__dirname+ '/nowyPrebid.json',JSON.stringify(elm),function(err){})
+        if(kontArr.kontakty.length){
+          kontArr.kontakty.forEach(kont =>{
+            sendEmail.sendEmail(kont,'ostatnitest2','prebid',true); 
+          })
+        }
     }
     else{
-      app.quit()
+      sendEmail.sendEmail('kgm004a@gmail.com','multiMail','prebid2',false); 
     }
    
 }
 
 })
+
+ipcMain.on('newEmail',function(e,item) {
+  kontArr.kontakty.push(item);
+  fs.writeFile(__dirname + '/nowyKontakt.json',JSON.stringify(kontArr),function(err){
+  })  
+})
+
+
+ipcMain.on('email',function(e,item) {
+
+  win = new BrowserWindow({ width: 500, height: 300 })
+  win.loadFile(__dirname + '/mail.html')
+})
+ 
+
+
+
 ipcMain.on('openWin',function(e,item) {
  
   require("electron").shell.openExternal("http://prebid.org/download.html");
@@ -44,7 +71,7 @@ ipcMain.on('closeiT',function(e,item) {
 
 const electronHandler=(src)=> {
      function createWindow () {
-       win = new BrowserWindow({ width: 500, height: 200 })
+       win = new BrowserWindow({ width: 500, height: 300 })
     
        win.loadFile(src)
     

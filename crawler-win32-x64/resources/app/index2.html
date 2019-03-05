@@ -15,6 +15,7 @@
         <div class="button-wrap">
                 <button class="redr">Zobacz najnowszą wersje</button>
                 <button class="close">Zamknij Powiadomienie</button>
+                <button class="add">Dodaj email</button>
         </div>
          
     </div>
@@ -29,6 +30,12 @@
        const openWin = document.querySelector('.redr').addEventListener('click',()=>{
         ipcRenderer.send('openWin',openWin);
        })
+
+       
+       const addEmail = document.querySelector('.add').addEventListener('click',()=>{
+           ipcRenderer.send('email',null)
+       })
+
     
      var request = require('request');
      var cheerio  = require('cheerio');
